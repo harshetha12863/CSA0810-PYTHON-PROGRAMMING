@@ -1,0 +1,49 @@
+import re
+import html
+import unicodedata
+
+SLANG_MAP = {
+    "tbh": "to be honest",
+    "imo": "in my opinion",
+    "imho": "in my humble opinion",
+    "idk": "i do not know",
+    "smh": "shaking my head",
+    "omg": "oh my god",
+    "lol": "laughing out loud",
+    "lmao": "laughing my ass off",
+    "btw": "by the way",
+    "fyi": "for your information",
+    "rn": "right now",
+    "nvm": "never mind",
+    "fr": "for real",
+    "ngl": "not gonna lie",
+    "goat": "greatest of all time"
+}
+
+def normalize_text(text):
+    if not text:
+        return ""
+
+    text = re.sub(r"<[^>]+>", " ", text)
+    text = html.unescape(text)
+    text = unicodedata.normalize("NFKD", text)
+
+    text = re.sub(r"https?://\S+|www\.\S+", "", text)
+    text = re.sub(r"@[A-Za-z0-9_]+", "", text)
+    text = re.sub(r"#([A-Za-z0-9_]+)", r"\1", text)
+
+    text = text.lower()
+
+    words = text.split()
+    words = [SLANG_MAP.get(word, word) for word in words]
+    text = " ".join(words)
+
+    text = re.sub(r"(.)\1{2,}", r"\1\1", text)
+    text = re.sub(r"[^a-z0-9\s!?]", " ", text)
+    text = re.sub(r"\s+", " ", text).strip()
+
+    return text
+
+
+text = input("Enter text: ")
+print("Normalized Text:", normalize_text(text))
